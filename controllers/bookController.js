@@ -3,7 +3,7 @@ var Author = require('../models/author');
 var Genre = require('../models/genre');
 var BookInstance = require('../models/bookinstance');
 var async = require('async');
-
+var mongoose = require('mongoose');
 
 exports.index = function(req, res) {
   
@@ -30,7 +30,7 @@ exports.index = function(req, res) {
 };
 
 // Display list of all books.
-exports.book_list = function(req, res) {
+exports.book_list = function(req, res, next) {
   Book.find({}, 'title author')
     .populate('author')
     .exec(function(err, list_books) {
@@ -40,8 +40,28 @@ exports.book_list = function(req, res) {
 };
 
 // Display detail page for a specific book.
-exports.book_detail = function(req, res) {
-    res.send('NOT IMPLEMENTED: Book detail: ' + req.params.id);
+exports.book_detail = function(req, res, next) {
+  async.parallel({
+    book: function(callback) {
+      let id = mongoose.Types.ObjectId(req.params.id.toString());
+      Book.findById(id)
+        .populate('author')
+        .populate('genre')
+        .exec(callback)
+    },
+    book_instance: function(callback) {
+      BookInstance.find({ 'book': req.params.id })
+        .exec(callback);
+    }
+  }, function(err, results) {
+    if (err) { return next(err); }
+    if (results.book == null) {
+      var err = new Error('Book not found');
+      err.status = 404;
+      return next(err);
+    }
+    res.render('book_detail', { title: results.book.title, book: results.book, book_instance: results.book_instance });
+  });
 };
 
 // Display book create form on GET.
