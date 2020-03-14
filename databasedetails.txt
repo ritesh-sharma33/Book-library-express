@@ -1,0 +1,3 @@
+connection string
+
+mongodb+srv://ritesh:1234@locallibrary-c87sr.mongodb.net/test?retryWrites=true&w=majority
