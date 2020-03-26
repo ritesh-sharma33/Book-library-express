@@ -8,7 +8,7 @@ var mongoose = require('mongoose');
 var catalogRouter = require('./routes/catalog');
 // Setting up default mongoose connection
 var mongoDB = 'mongodb+srv://ritesh:1234@locallibrary-c87sr.mongodb.net/test?retryWrites=true&w=majority';
-mongoose.connect(mongoDB, { useNewUrlParser: true });
+mongoose.connect(mongoDB, { useNewUrlParser: true, useUnifiedTopology: true, dbName: 'library' });
 
 // Get the default connection
 var db = mongoose.connection;
